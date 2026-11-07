@@ -1,8 +1,14 @@
+# Updated README — APU Employment Management System
+
+Below is a corrected README based on the original PDF. Key fixes: the terminology for roles (Employer/Corporate Customer/Jobseeker), the actual JSP/servlet/entity names, the DB table names from the PDF, and the missing features (ratings/comments, warnings, auto-deletion after 3 warnings, public Jobs/Companies pages).
+
+---
+
 # APU Employment Management System
 
-A Java EE web application for managing employment and recruitment workflows at Asia Pacific University (APU). The system brings employees, employers, and administrators together in one portal: employers can publish vacancies and review applicants, employees can browse and apply for jobs, and administrators can manage platform data and feedback.
+A Java EE web application for managing employment and recruitment workflows at Asia Pacific University (APU). The system brings employees (jobseekers), employers (corporate customers), and administrators together in one portal: employers can publish vacancies and review applicants, employees can browse and apply for jobs, and administrators can manage platform data, feedback, and warnings.
 
-> This is an academic project created in 2024. The application is structured as a Java EE 7 enterprise application and uses JSP, Servlets, EJB, JPA, and a configured application-server datasource.
+> This is an academic project created in 2024 (Individual Assignment, Enterprise Programming for Distributed Application, 052024-KGT, Part 2). The application is structured as a Java EE 7 enterprise application and uses JSP, Servlets, EJB, JPA, and a configured application-server datasource.
 
 ## Table of contents
 
@@ -18,30 +24,44 @@ A Java EE web application for managing employment and recruitment workflows at A
 
 Recruitment work involves several connected tasks: maintaining user accounts, publishing job vacancies, receiving applications, reviewing candidates, and communicating outcomes. This application provides role-specific screens and server-side request handling for those workflows. Separating the web interface from the business/data modules also makes the project easier to navigate and extend.
 
+The system uses a **three-tier architecture**:
+
+1. **Presentation Tier** — JSP pages (UI for each role) and Servlets (controllers that process requests and invoke business logic).
+2. **Business Tier** — Facade classes (encapsulate business logic and CRUD operations) and Entity classes (map to database tables).
+3. **Database Tier** — The actual database where data is persisted; entities map directly to tables.
+
 ## Roles and features
 
-### Employee
+The system has three main user roles: **Admin**, **Employer (Corporate Customer)**, and **Employee (Jobseeker)**. Each has its own access privileges and functionalities.
+
+### Employee (Jobseeker)
 
 - Create an employee account and sign in.
-- Browse vacancies and submit job applications.
-- Review application history and notifications.
-- View ratings and feedback where available.
+- Browse the public Jobs page and submit job applications (with confirmation, e.g. "Application submitted successfully!").
+- Access a **Jobseeker Dashboard** with options to:
+  - Manage/edit profile.
+  - View application history (searchable by job title).
+  - View notifications (e.g. warnings, shortlisting, job confirmation).
+- Submit ratings and comments for job listings and companies (must be logged in; public users can view existing ratings/comments but must log in to post).
+- Accounts receive warnings from the admin; **after 3 warnings the employee account is automatically deleted**.
 
-### Employer
+### Employer (Corporate Customer)
 
-- Create an employer account and access an employer dashboard.
-- Post vacancies and manage previously posted vacancies.
-- Review applicants and shortlist candidates.
-- Send feedback or complaints through the available screens.
+- Create an employer account and access the **Corporate Customers Dashboard**.
+- Post new vacancies, view posting history, and edit or delete previously posted vacancies.
+- Review the applicants list (showing applicant name, birthdate, gender, email, job ID, applied date) and **shortlist** candidates or **confirm the job** for them.
+- Submit feedback or complaints to the admin (feedback type: Complaint, etc.).
 
 ### Administrator
 
-- Access the administrative dashboard.
-- Manage corporate/employer information.
-- Review and manage feedback.
-- Register administrator accounts.
+- Access the **Admin Dashboard**, with options to edit admin profile, manage all accounts, and manage feedbacks and warnings.
+- **Search & Manage Accounts**: search by role, username, gender, email, birthdate, etc.; edit, delete, or add new customer accounts.
+- **Feedback Management**: view complaints made by corporate customers, issue warnings to employees, and view all previously sent warnings.
 
-Access and actions are organized by role in the web application. Authentication and request handling are implemented in the Java controller classes; individual JSP pages provide the corresponding role-specific screens.
+### Public (not logged in)
+
+- View the **Jobs** page (list of vacancies) and **Companies** page (list of companies with average ratings, e.g. "Average Rating: 4.50 / 5.00").
+- View a company's existing ratings and comments (must log in to post).
 
 ## How the code is organized
 
@@ -50,23 +70,47 @@ The project is a NetBeans enterprise application with separate web and EJB modul
 ```text
 APUEmploymentSystem/
 ├── APUEmploymentSystem-war/       # Web application: JSP pages, assets, and servlets
-│   ├── src/java/controller/       # HTTP request handlers and application workflows
-│   └── web/                       # JSP views, CSS, JavaScript, and WEB-INF config
+│   ├── src/java/controller/       # HTTP request handlers (servlets)
+│   └── web/                       # JSP views, CSS, JavaScript, images, WEB-INF config
 ├── APUEmploymentSystem-ejb/       # Business/data module
-│   └── src/java/model/            # JPA entities, facades, and persistence operations
+│   └── src/java/model/            # JPA entities, facades, persistence operations
 ├── nbproject/                     # NetBeans project configuration
 └── build.xml                      # Ant build entry point
 ```
 
 ### Presentation and request handling — `APUEmploymentSystem-war`
 
-The WAR module contains the browser-facing application. JSP files under `web/` render pages for the different roles, including dashboards, registration forms, vacancy management, application history, and feedback. Shared assets and page resources are in `web/CSS`, `web/JS`, and related directories.
+The WAR module contains the browser-facing application. JSP pages and servlets are organized per role.
 
-Servlets under `src/java/controller/` handle submitted requests and coordinate the work needed for actions such as login, registration, applying for a job, posting a vacancy, and processing feedback. In broad terms, a JSP form sends a request to a servlet; the servlet uses the business/data layer and then forwards or redirects to an appropriate page.
+**JSP pages (`web/`):**
+
+- `login.jsp` — entry point / sign-in page (includes links to Register and Forgot Password; the client URL used in the NetBeans run configuration).
+- **Employee pages:** `employee_dashboard.jsp` (jobseeker dashboard), `application_history.jsp` (application history), plus profile edit and notifications views.
+- **Employer pages:** `employer_dashboard.jsp` (corporate customer dashboard), `post_vacancy.jsp` (post a new job vacancy), plus posting history and feedback/complaint submission views.
+- **Admin pages:** `admin_dashboard.jsp` (admin dashboard), `admin_feedback_management.jsp` (feedback management), plus account search/manage views.
+- **Public pages:** Jobs listing and Companies listing (accessible before login).
+- Shared assets: `style.css` (`web/CSS`), `app.js` (`web/JS`), and `logo.png` (images).
+
+**Servlets (`src/java/controller/`):** handle submitted requests and coordinate actions such as login, registration (Admin/Employer/Employee), applying for a job, posting a vacancy, and processing feedback. For example:
+
+- `AdminServlet.java` — admin-related requests.
+- `EmployerServlet.java` — employer-related requests.
+- `LoginServlet.java` — authentication/session handling.
+- `EmployeeServlet.java` — employee-related requests.
+- `RegisterServlet.java` — registration workflows.
+- `AdminFeedbackServlet.java` — feedback management by the admin.
+- `ApplyJobServlet.java` — job application process for employees.
+- `PostVacancyServlet.java` — posting new job vacancies by employers.
+
+In broad terms, a JSP form sends a request to a servlet; the servlet uses the business/data layer and then forwards or redirects to an appropriate page.
 
 ### Business and persistence — `APUEmploymentSystem-ejb`
 
-The EJB module contains the JPA model classes and persistence facades. Entities represent the main application records, including customers/users, vacancies, applicants, feedback, ratings, and notifications. The facade classes provide reusable create, read, update, and delete operations through an `EntityManager`; `AbstractFacade` supplies common operations such as finding records, listing records, paging, and counting.
+The EJB module contains the JPA model classes and persistence facades.
+
+**Facade classes (`model` package):** encapsulate business logic and perform CRUD operations. Example facades include `AdminFacade`, `EmployerFacade`, `LoginFacade`, `EmployeeFacade`, `RegisterFacade`, `ApplicantsFacade`, and `VacancyFacade`. `AbstractFacade` supplies common operations such as finding records, listing records, paging, and counting.
+
+**Entity classes (`model` package):** represent the data model and map to database tables, including `LoginEntity`, `AdminEntity`, `EmployeeEntity`, `EmployerEntity`, `RegisterEntity`, `Applicants` (Applicants table), and `Vacancy` (job vacancies with fields such as job title, description, and associated employer). Entities also cover feedback, ratings, and notifications.
 
 The persistence unit is named `APUEmploymentSystem-ejbPU` and uses the JTA datasource `jdbc/sample`. Its schema-generation setting is configured to create the database schema when the persistence provider initializes, so verify your environment and data-retention needs before running it against any database containing important data.
 
@@ -74,9 +118,22 @@ The persistence unit is named `APUEmploymentSystem-ejbPU` and uses the JTA datas
 
 1. A user opens a role-specific JSP page and submits a form or action.
 2. A servlet in the WAR module validates and handles the request.
-3. The servlet calls the relevant EJB/model facade to perform persistence work.
+3. The servlet calls the relevant EJB/model facade to perform persistence work (e.g. `LoginServlet` → `LoginFacade` → `LoginEntity`).
 4. JPA maps entity objects to database records through the configured datasource.
 5. The servlet returns the user to a JSP view with the resulting page or status.
+
+### Database design (from the original report)
+
+Main tables:
+
+- **MyCustomer** — `EMAIL`, `BIRTHDATE`, `GENDER`, `PASSWORD`, `ROLE` (Admin / Employer / Employee / Staff), `USERNAME`.
+- **Vacancy** — `ID`, `CLOSINGDATE`, `COMPANYNAME`, `EXPERIENCE`, `JOBTITLE`, `JOBTYPE`, `LOCATION`, `QUALIFICATION`, `SALARYRANGE`, `SECTOR`, `JOBDESCRIPTION`, `EMPLOYEREMAIL`.
+- **Applicants** — `ID`, `NAME`, `BIRTHDATE`, `APPLIED_DATE`, `GENDER`, `EMAIL`, `JOBID` (foreign key to Vacancy).
+- **Feedback** — `ID`, `FROMEMPLOYER`, `ABOUTEMPLOYEE`, `FEEDBACKDATE`, `FEEDBACKTYPE`, `MESSAGE`, `STATUS` (e.g. Pending), `ADMINRESPONSE`.
+- **Notifications** — `ID`, `FROMwHO`, `MESSAGE`, `WHATDATE`, `TOwHO`.
+- **Ratings** — `ID`, `COMMENT`, `TOwHO`, `FROMwHO`, `WHATDATE`, `RATING` (1–5 stars), `JOBID` (foreign key to Vacancy).
+
+Relationships: one-to-many between Employer and Vacancy, and between Vacancy and Applicants; a many-to-many relationship between Applicants and Vacancy is managed through a join table. Indexes on key columns (e.g. `ID`, `JOBID`) improve retrieval speed, and foreign keys (e.g. `JOBID` in Applicants → Vacancy) enforce referential integrity.
 
 ## Technology stack
 
@@ -179,3 +236,26 @@ An additional view of the application's role-based interface and employment-mana
 ## Project documentation
 
 For more detailed design and project information, see [Employment Management System.pdf](Employment%20Management%20System.pdf) in the repository.
+
+---
+
+## Summary of corrections made
+
+| Area | Original README | PDF says |
+|---|---|---|
+| Role naming | "Employee / Employer / Administrator" | Also called **Jobseeker** and **Corporate Customer** |
+| Public access | Not mentioned | **Jobs** and **Companies** pages (with average ratings) are publicly viewable before login |
+| Employer dashboard | Generic | **Corporate Customers Dashboard** with Manage Profile, Post New Vacancies, Shortlist Applicants, View Application History, Send Feedback to Admin |
+| Employee dashboard | Generic | **Jobseeker Dashboard** with Manage Profile, View Application History, View Notifications |
+| Jobseeker extras | "View ratings and feedback where available" | Jobseekers **submit** ratings/comments for jobs and companies; must be logged in to post |
+| Admin features | "Manage corporate/employer information" | Search & Manage Accounts (search/edit/delete/add), Feedback Management, issue warnings; **3 warnings → account auto-deleted** |
+| Servlet names | Generic examples | Actual names: `AdminServlet`, `EmployerServlet`, `LoginServlet`, `EmployeeServlet`, `RegisterServlet`, `AdminFeedbackServlet`, `ApplyJobServlet`, `PostVacancyServlet` |
+| JSP names | Generic | `login.jsp`, `admin_dashboard.jsp`, `admin_feedback_management.jsp`, `application_history.jsp`, `employee_dashboard.jsp`, `post_vacancy.jsp`, `employer_dashboard.jsp`, `style.css`, `app.js`, `logo.png` |
+| Facade names | "AbstractFacade" only | `AdminFacade`, `EmployerFacade`, `LoginFacade`, `EmployeeFacade`, `RegisterFacade`, `ApplicantsFacade`, `VacancyFacade` |
+| Entity names | "customers/users, vacancies, applicants…" | `LoginEntity`, `AdminEntity`, `EmployeeEntity`, `EmployerEntity`, `RegisterEntity`, `Applicants`, `Vacancy`, plus feedback/ratings/notifications entities |
+| DB tables | Not listed | `MyCustomer`, `Vacancy`, `Applicants`, `Feedback`, `Notifications`, `Ratings` with columns |
+| Architecture | Brief mention | Explicit 3-tier: Presentation (JSP + Servlets), Business (Facades + Entities), Database (entity-to-table mapping) |
+| Tech stack | Correct | Confirmed: Java 8, Java EE 7, JSP/Servlets, EJB/JPA 2.1, Ant/NetBeans, GlassFish, Bootstrap 4.5.2 |
+| Persistence unit / datasource | Correct | Confirmed: `APUEmploymentSystem-ejbPU`, `jdbc/sample` |
+
+One thing I did **not** change: the README's screenshot captions are the placeholders you already had, since the PDF's images (pages 5–18) differ from the GitHub attachment URLs in your README. If you want, I can rewrite those captions to match the PDF screenshots exactly (Login Page, Employee Sign up, Employer Sign up, Admin Sign up, Jobs Page, Companies Page, Company Ratings and Comments, Jobseeker Dashboard, Profile Edit, Application History, Notifications, Job Applications, Rate the Job Listing, Admin Dashboard, Search & Manage Accounts, Feedback Management, Corporate Customers Dashboard, Post New Vacancy, Applicants List, Posting History, Submit Feedback or Complaints).
