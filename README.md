@@ -1,14 +1,8 @@
-# Updated README — APU Employment Management System
-
-Below is a corrected README based on the original PDF. Key fixes: the terminology for roles (Employer/Corporate Customer/Jobseeker), the actual JSP/servlet/entity names, the DB table names from the PDF, and the missing features (ratings/comments, warnings, auto-deletion after 3 warnings, public Jobs/Companies pages).
-
----
-
 # APU Employment Management System
 
 A Java EE web application for managing employment and recruitment workflows at Asia Pacific University (APU). The system brings employees (jobseekers), employers (corporate customers), and administrators together in one portal: employers can publish vacancies and review applicants, employees can browse and apply for jobs, and administrators can manage platform data, feedback, and warnings.
 
-> This is an academic project created in 2024 (Individual Assignment, Enterprise Programming for Distributed Application, 052024-KGT, Part 2). The application is structured as a Java EE 7 enterprise application and uses JSP, Servlets, EJB, JPA, and a configured application-server datasource.
+> This is an academic project created in 2024. The application is structured as a Java EE 7 enterprise application and uses JSP, Servlets, EJB, JPA, and a configured application-server datasource.
 
 ## Table of contents
 
@@ -236,26 +230,3 @@ An additional view of the application's role-based interface and employment-mana
 ## Project documentation
 
 For more detailed design and project information, see [Employment Management System.pdf](Employment%20Management%20System.pdf) in the repository.
-
----
-
-## Summary of corrections made
-
-| Area | Original README | PDF says |
-|---|---|---|
-| Role naming | "Employee / Employer / Administrator" | Also called **Jobseeker** and **Corporate Customer** |
-| Public access | Not mentioned | **Jobs** and **Companies** pages (with average ratings) are publicly viewable before login |
-| Employer dashboard | Generic | **Corporate Customers Dashboard** with Manage Profile, Post New Vacancies, Shortlist Applicants, View Application History, Send Feedback to Admin |
-| Employee dashboard | Generic | **Jobseeker Dashboard** with Manage Profile, View Application History, View Notifications |
-| Jobseeker extras | "View ratings and feedback where available" | Jobseekers **submit** ratings/comments for jobs and companies; must be logged in to post |
-| Admin features | "Manage corporate/employer information" | Search & Manage Accounts (search/edit/delete/add), Feedback Management, issue warnings; **3 warnings → account auto-deleted** |
-| Servlet names | Generic examples | Actual names: `AdminServlet`, `EmployerServlet`, `LoginServlet`, `EmployeeServlet`, `RegisterServlet`, `AdminFeedbackServlet`, `ApplyJobServlet`, `PostVacancyServlet` |
-| JSP names | Generic | `login.jsp`, `admin_dashboard.jsp`, `admin_feedback_management.jsp`, `application_history.jsp`, `employee_dashboard.jsp`, `post_vacancy.jsp`, `employer_dashboard.jsp`, `style.css`, `app.js`, `logo.png` |
-| Facade names | "AbstractFacade" only | `AdminFacade`, `EmployerFacade`, `LoginFacade`, `EmployeeFacade`, `RegisterFacade`, `ApplicantsFacade`, `VacancyFacade` |
-| Entity names | "customers/users, vacancies, applicants…" | `LoginEntity`, `AdminEntity`, `EmployeeEntity`, `EmployerEntity`, `RegisterEntity`, `Applicants`, `Vacancy`, plus feedback/ratings/notifications entities |
-| DB tables | Not listed | `MyCustomer`, `Vacancy`, `Applicants`, `Feedback`, `Notifications`, `Ratings` with columns |
-| Architecture | Brief mention | Explicit 3-tier: Presentation (JSP + Servlets), Business (Facades + Entities), Database (entity-to-table mapping) |
-| Tech stack | Correct | Confirmed: Java 8, Java EE 7, JSP/Servlets, EJB/JPA 2.1, Ant/NetBeans, GlassFish, Bootstrap 4.5.2 |
-| Persistence unit / datasource | Correct | Confirmed: `APUEmploymentSystem-ejbPU`, `jdbc/sample` |
-
-One thing I did **not** change: the README's screenshot captions are the placeholders you already had, since the PDF's images (pages 5–18) differ from the GitHub attachment URLs in your README. If you want, I can rewrite those captions to match the PDF screenshots exactly (Login Page, Employee Sign up, Employer Sign up, Admin Sign up, Jobs Page, Companies Page, Company Ratings and Comments, Jobseeker Dashboard, Profile Edit, Application History, Notifications, Job Applications, Rate the Job Listing, Admin Dashboard, Search & Manage Accounts, Feedback Management, Corporate Customers Dashboard, Post New Vacancy, Applicants List, Posting History, Submit Feedback or Complaints).
