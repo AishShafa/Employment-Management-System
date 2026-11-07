@@ -20,9 +20,9 @@ Recruitment work involves several connected tasks: maintaining user accounts, pu
 
 The system uses a **three-tier architecture**:
 
-1. **Presentation Tier** — JSP pages (UI for each role) and Servlets (controllers that process requests and invoke business logic).
-2. **Business Tier** — Facade classes (encapsulate business logic and CRUD operations) and Entity classes (map to database tables).
-3. **Database Tier** — The actual database where data is persisted; entities map directly to tables.
+1. **Presentation Tier** - JSP pages (UI for each role) and Servlets (controllers that process requests and invoke business logic).
+2. **Business Tier** - Facade classes (encapsulate business logic and CRUD operations) and Entity classes (map to database tables).
+3. **Database Tier** - The actual database where data is persisted; entities map directly to tables.
 
 ## Roles and features
 
